@@ -154,7 +154,8 @@ ipcMain.handle('sales:create', (event, saleData) => {
       // Deduct from tyres
       const newQty = tyre.quantity - saleData.qty_sold;
       const now = new Date().toISOString();
-      db.prepare('UPDATE tyres SET quantity = ?, updated_at = ? WHERE id = ?').run(newQty, now, saleData.tyre_id);
+      const updateResult = db.prepare('UPDATE tyres SET quantity = ?, updated_at = ? WHERE id = ?').run(newQty, now, saleData.tyre_id);
+      console.log('Stock update result:', updateResult);
       
       // Insert sale
       const totalAmount = saleData.qty_sold * saleData.sale_price;
@@ -162,6 +163,7 @@ ipcMain.handle('sales:create', (event, saleData) => {
         INSERT INTO sales (tyre_id, size, qty_sold, sale_price, total_amount, customer_name, note, sold_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(saleData.tyre_id, tyre.size, saleData.qty_sold, saleData.sale_price, totalAmount, saleData.customer_name, saleData.note, now);
+      console.log('Sale insert result:', result);
       
       return { lastInsertRowid: result.lastInsertRowid, newQty };
     });
@@ -170,8 +172,12 @@ ipcMain.handle('sales:create', (event, saleData) => {
     const updatedTyre = db.prepare('SELECT * FROM tyres WHERE id = ?').get(saleData.tyre_id);
     const newSale = db.prepare('SELECT * FROM sales WHERE id = ?').get(transactionResult.lastInsertRowid);
     
+    console.log('Sale completed. Updated tyre:', updatedTyre);
+    console.log('New sale record:', newSale);
+    
     return { success: true, data: { tyre: updatedTyre, sale: newSale } };
   } catch (error) {
+    console.error('Sale creation error:', error);
     return { success: false, error: error.message };
   }
 });
