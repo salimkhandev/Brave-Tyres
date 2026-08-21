@@ -219,8 +219,9 @@ body {
   padding: 1rem;
   background-color: #f9fafb;
   border: 1px solid var(--border);
-  border-top: none;
+  border-radius: 4px;
   font-weight: 500;
+  margin-bottom: 1.5rem;
 }
 
 .summary-bar {

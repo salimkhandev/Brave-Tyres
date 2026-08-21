@@ -509,11 +509,9 @@ document.querySelectorAll('.sub-tab-btn').forEach(btn => {
     if (tabId === 'stock-table') {
       document.querySelector('.table-container').style.display = 'block';
       document.getElementById('purchase-history').style.display = 'none';
-      document.getElementById('stockFooter').style.display = 'flex';
     } else if (tabId === 'purchase-history') {
       document.querySelector('.table-container').style.display = 'none';
       document.getElementById('purchase-history').style.display = 'block';
-      document.getElementById('stockFooter').style.display = 'none';
       loadPurchaseHistory();
     }
   });
