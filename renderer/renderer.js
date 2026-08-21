@@ -480,26 +480,8 @@ async function loadDashboard() {
 }
 
 // Export functionality
-document.getElementById('exportStockBtn').addEventListener('click', async () => {
-  const result = await window.api.export.stock();
-  if (result.success) {
-    showToast(`Exported to ${result.path}`);
-  } else {
-    showToast(result.error, 'error');
-  }
-});
-
 document.getElementById('exportStockExcelBtn').addEventListener('click', async () => {
   const result = await window.api.export.stockExcel();
-  if (result.success) {
-    showToast(`Exported to ${result.path}`);
-  } else {
-    showToast(result.error, 'error');
-  }
-});
-
-document.getElementById('exportSalesBtn').addEventListener('click', async () => {
-  const result = await window.api.export.sales();
   if (result.success) {
     showToast(`Exported to ${result.path}`);
   } else {

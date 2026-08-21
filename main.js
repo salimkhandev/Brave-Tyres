@@ -304,32 +304,6 @@ ipcMain.handle('dashboard:getSummary', () => {
 });
 
 // Export handlers
-ipcMain.handle('export:stock', async () => {
-  try {
-    const result = await dialog.showSaveDialog(mainWindow, {
-      defaultPath: `brave-tyres-stock-${new Date().toISOString().split('T')[0]}.csv`,
-      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
-    });
-    
-    if (result.canceled) {
-      return { success: false, error: 'Export canceled' };
-    }
-    
-    const db = getDatabase();
-    const tyres = db.prepare('SELECT * FROM tyres ORDER BY serial_no').all();
-    
-    let csv = 'S.No,Size,PR,Pattern,Brand,Origin,Quantity,Purchase Price,Price with Duty,Set Price,Min Stock Alert,Total Value\n';
-    tyres.forEach(tyre => {
-      csv += `"${tyre.serial_no}","${tyre.size}","${tyre.pr || ''}","${tyre.pattern || ''}","${tyre.brand || ''}","${tyre.origin || ''}",${tyre.quantity},${tyre.purchase_price},${tyre.price_with_duty},${tyre.set_price},${tyre.min_stock_alert},${tyre.quantity * tyre.set_price}\n`;
-    });
-    
-    fs.writeFileSync(result.filePath, csv);
-    return { success: true, path: result.filePath };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
-
 ipcMain.handle('export:stock:excel', async () => {
   try {
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -400,32 +374,6 @@ ipcMain.handle('export:stock:excel', async () => {
     });
     
     await workbook.xlsx.writeFile(result.filePath);
-    return { success: true, path: result.filePath };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('export:sales', async () => {
-  try {
-    const result = await dialog.showSaveDialog(mainWindow, {
-      defaultPath: `brave-tyres-sales-${new Date().toISOString().split('T')[0]}.csv`,
-      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
-    });
-    
-    if (result.canceled) {
-      return { success: false, error: 'Export canceled' };
-    }
-    
-    const db = getDatabase();
-    const sales = db.prepare('SELECT * FROM sales ORDER BY sold_at DESC').all();
-    
-    let csv = 'Date,Size,Qty Sold,Sale Price,Total Amount,Customer,Note\n';
-    sales.forEach(sale => {
-      csv += `"${sale.sold_at}","${sale.size}",${sale.qty_sold},${sale.sale_price},${sale.total_amount},"${sale.customer_name || ''}","${sale.note || ''}"\n`;
-    });
-    
-    fs.writeFileSync(result.filePath, csv);
     return { success: true, path: result.filePath };
   } catch (error) {
     return { success: false, error: error.message };

@@ -21,9 +21,7 @@ contextBridge.exposeInMainWorld('api', {
     getSummary: () => ipcRenderer.invoke('dashboard:getSummary')
   },
   export: {
-    stock: () => ipcRenderer.invoke('export:stock'),
     stockExcel: () => ipcRenderer.invoke('export:stock:excel'),
-    sales: () => ipcRenderer.invoke('export:sales'),
     salesExcel: () => ipcRenderer.invoke('export:sales:excel')
   },
   backup: {
