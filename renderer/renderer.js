@@ -330,6 +330,12 @@ document.getElementById('confirmSaleBtn').addEventListener('click', async () => 
   if (result.success) {
     console.log('Sale successful. Updated tyre data:', result.data.tyre);
     showToast(`Sold ${qty} x ${tyre.size} for ${formatCurrency(qty * price)}. Remaining stock: ${result.data.tyre.quantity}`);
+    
+    // Reload both sell section and stock table to show updated quantities
+    await loadSellTyres();
+    loadStockTable(); // Refresh stock table to show updated quantities
+    
+    // Clear form
     document.getElementById('sellTyreSelect').value = '';
     document.getElementById('tyreDetails').style.display = 'none';
     document.getElementById('sellQty').value = 1;
@@ -337,8 +343,6 @@ document.getElementById('confirmSaleBtn').addEventListener('click', async () => 
     document.getElementById('sellCustomer').value = '';
     document.getElementById('sellNote').value = '';
     document.getElementById('totalAmount').textContent = '0';
-    loadSellTyres();
-    loadStockTable(); // Refresh stock table to show updated quantities
   } else {
     console.error('Sale failed:', result.error);
     showToast(result.error, 'error');
