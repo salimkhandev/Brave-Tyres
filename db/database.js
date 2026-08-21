@@ -17,18 +17,22 @@ function initDatabase() {
   const localDbPath = path.join(__dirname, '..', 'brave-tyres.sqlite');
   console.log('Looking for seeded database at:', localDbPath);
   console.log('Seeded database exists:', fs.existsSync(localDbPath));
+  console.log('User database exists:', fs.existsSync(dbPath));
   
-  if (fs.existsSync(localDbPath)) {
+  // Only copy seeded database if user database doesn't exist
+  if (!fs.existsSync(dbPath) && fs.existsSync(localDbPath)) {
     // Ensure the directory exists
     const dbDir = path.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
-    // Always copy the seeded database for testing
+    // Copy the seeded database for initial setup
     fs.copyFileSync(localDbPath, dbPath);
     console.log('Copied seeded database to:', dbPath);
+  } else if (!fs.existsSync(dbPath)) {
+    console.log('No seeded database found, creating new database');
   } else {
-    console.log('Seeded database not found, creating new database');
+    console.log('Using existing user database at:', dbPath);
   }
   
   db = new Database(dbPath);
