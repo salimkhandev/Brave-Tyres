@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brave Tyres Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="../assets/logo.png" alt="Brave Tyres" class="nav-logo">
+      <span>Brave Tyres Management</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+      <button class="nav-btn" data-section="stock">Stock</button>
+      <button class="nav-btn" data-section="sell">Sell</button>
+      <button class="nav-btn" data-section="sales-history">Sales History</button>
+      <button class="nav-btn" data-section="backup">Backup</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section active">
+      <div class="section-header">
+        <h2>Dashboard</h2>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="card">
+          <div class="card-value" id="dashTotalSizes">0</div>
+          <div class="card-label">Total Distinct Sizes</div>
+        </div>
+        <div class="card">
+          <div class="card-value" id="dashTotalUnits">0</div>
+          <div class="card-label">Total Units in Stock</div>
+        </div>
+        <div class="card">
+          <div class="card-value" id="dashTotalValue">Rs. 0</div>
+          <div class="card-label">Total Stock Value</div>
+        </div>
+        <div class="card">
+          <div class="card-value" id="dashTodaySales">Rs. 0</div>
+          <div class="card-label">Today's Sales</div>
+        </div>
+        <div class="card">
+          <div class="card-value" id="dashMonthSales">Rs. 0</div>
+          <div class="card-label">This Month's Sales</div>
+        </div>
+        <div class="card">
+          <div class="card-value" id="dashLowStock">0</div>
+          <div class="card-label">Low Stock Items</div>
+        </div>
+      </div>
+
+      <div class="dashboard-section">
+        <h3>Low Stock Alerts</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Pattern</th>
+                <th>Current Qty</th>
+                <th>Min Alert</th>
+              </tr>
+            </thead>
+            <tbody id="lowStockBody">
+              <!-- Low stock items will be populated here -->
+            </tbody>
+          </table>
+        </div>
+        <div id="noLowStock" class="no-data">All stock levels are healthy</div>
+      </div>
+
+      <div class="dashboard-section">
+        <h3>Top Selling Sizes (This Month)</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Total Qty Sold</th>
+              </tr>
+            </thead>
+            <tbody id="topSellingBody">
+              <!-- Top selling sizes will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stock Section -->
+    <section id="stock" class="section active">
+      <div class="section-header">
+        <h2>Stock Management</h2>
+        <div>
+          <button class="btn btn-secondary" id="exportStockBtn">Export to CSV</button>
+          <button class="btn btn-secondary" id="exportStockExcelBtn">Export to Excel</button>
+          <button class="btn btn-primary" id="addTyreBtn">+ Add New Tyre</button>
+        </div>
+      </div>
+      
+      <div class="search-bar">
+        <input type="text" id="stockSearch" placeholder="Search by size, pattern, or brand...">
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="stockTable">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Size</th>
+              <th>PR</th>
+              <th>Pattern</th>
+              <th>Brand</th>
+              <th>Qty</th>
+              <th>Price w/ Duty</th>
+              <th>Set Price</th>
+              <th>Total Value</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stockTableBody">
+            <!-- Data will be populated here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer" id="stockFooter">
+        <span>Total Sizes: 0</span>
+        <span>Total Units in Stock: 0</span>
+        <span>Total Stock Value: Rs. 0</span>
+      </div>
+
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-tab="stock-table">Stock Table</button>
+        <button class="sub-tab-btn" data-tab="purchase-history">Purchase History</button>
+      </div>
+
+      <div id="purchase-history" style="display: none;">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Size</th>
+                <th>Pattern</th>
+                <th>Qty Added</th>
+                <th>Cost Price</th>
+                <th>Supplier</th>
+              </tr>
+            </thead>
+            <tbody id="purchaseHistoryBody">
+              <!-- Purchase history will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sell Section -->
+    <section id="sell" class="section">
+      <div class="section-header">
+        <h2>Sell Tyres</h2>
+      </div>
+
+      <div class="sell-form">
+        <div class="form-group">
+          <label>Select Tyre:</label>
+          <select id="sellTyreSelect">
+            <option value="">-- Select a tyre --</option>
+          </select>
+        </div>
+
+        <div class="tyre-details" id="tyreDetails" style="display: none;">
+          <div class="detail-row">
+            <span><strong>Size:</strong> <span id="detailSize">-</span></span>
+            <span><strong>PR:</strong> <span id="detailPR">-</span></span>
+            <span><strong>Pattern:</strong> <span id="detailPattern">-</span></span>
+          </div>
+          <div class="detail-row">
+            <span><strong>Current Stock:</strong> <span id="detailStock">-</span></span>
+            <span><strong>Set Price:</strong> <span id="detailPrice">-</span></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity to Sell:</label>
+          <input type="number" id="sellQty" min="1" value="1">
+        </div>
+
+        <div class="form-group">
+          <label>Sale Price per Unit:</label>
+          <input type="number" id="sellPrice" min="0" step="0.01">
+        </div>
+
+        <div class="total-amount">
+          <strong>Total Amount: Rs. <span id="totalAmount">0</span></strong>
+        </div>
+
+        <div class="form-group">
+          <label>Customer Name (optional):</label>
+          <input type="text" id="sellCustomer">
+        </div>
+
+        <div class="form-group">
+          <label>Note (optional):</label>
+          <input type="text" id="sellNote">
+        </div>
+
+        <button class="btn btn-primary" id="confirmSaleBtn">Confirm Sale</button>
+      </div>
+
+      <div class="recent-sales">
+        <h3>Recent Sales</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Size</th>
+              <th>Qty</th>
+              <th>Amount</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="recentSalesBody">
+            <!-- Recent sales will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sales History Section -->
+    <section id="sales-history" class="section">
+      <div class="section-header">
+        <h2>Sales History</h2>
+        <div>
+          <button class="btn btn-secondary" id="exportSalesBtn">Export to CSV</button>
+          <button class="btn btn-secondary" id="exportSalesExcelBtn">Export to Excel</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>From:</label>
+          <input type="date" id="filterStartDate">
+        </div>
+        <div class="filter-group">
+          <label>To:</label>
+          <input type="date" id="filterEndDate">
+        </div>
+        <div class="filter-group">
+          <label>Size:</label>
+          <input type="text" id="filterSize" placeholder="Filter by size...">
+        </div>
+        <button class="btn btn-secondary" id="applyFilterBtn">Apply Filter</button>
+        <button class="btn btn-secondary" id="todayFilterBtn">Today</button>
+        <button class="btn btn-secondary" id="monthFilterBtn">This Month</button>
+      </div>
+
+      <div class="summary-bar" id="salesSummary">
+        <span>Total Sales: Rs. 0</span>
+        <span>Units Sold: 0</span>
+        <span>Transactions: 0</span>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date/Time</th>
+              <th>Size</th>
+              <th>Qty Sold</th>
+              <th>Sale Price</th>
+              <th>Total Amount</th>
+              <th>Customer</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="salesHistoryBody">
+            <!-- Sales history will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Backup Section -->
+    <section id="backup" class="section">
+      <div class="section-header">
+        <h2>Backup & Restore</h2>
+      </div>
+
+      <div class="backup-info">
+        <div class="info-group">
+          <label>Database Location:</label>
+          <span id="dbPath">Loading...</span>
+        </div>
+        <div class="info-group">
+          <label>Database Size:</label>
+          <span id="dbSize">Loading...</span>
+        </div>
+        <div class="info-group">
+          <label>Last Modified:</label>
+          <span id="dbModified">Loading...</span>
+        </div>
+      </div>
+
+      <div class="backup-actions">
+        <button class="btn btn-primary" id="backupNowBtn">Backup Now</button>
+        <button class="btn btn-danger" id="restoreBackupBtn">Restore from Backup</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Tyre Form Modal -->
+  <div id="tyreModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add New Tyre</h3>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      <form id="tyreForm">
+        <input type="hidden" id="tyreId">
+        <div class="form-group">
+          <label>Serial No:</label>
+          <input type="text" id="tyreSerial" readonly>
+        </div>
+        <div class="form-group">
+          <label>Size:</label>
+          <input type="text" id="tyreSize" required>
+        </div>
+        <div class="form-group">
+          <label>PR:</label>
+          <input type="text" id="tyrePR">
+        </div>
+        <div class="form-group">
+          <label>Pattern:</label>
+          <input type="text" id="tyrePattern">
+        </div>
+        <div class="form-group">
+          <label>Brand:</label>
+          <input type="text" id="tyreBrand">
+        </div>
+        <div class="form-group">
+          <label>Origin:</label>
+          <input type="text" id="tyreOrigin">
+        </div>
+        <div class="form-group">
+          <label>Quantity:</label>
+          <input type="number" id="tyreQty" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Purchase Price:</label>
+          <input type="number" id="tyrePurchasePrice" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Price with Duty:</label>
+          <input type="number" id="tyrePriceWithDuty" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Set Price:</label>
+          <input type="number" id="tyreSetPrice" min="0" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Min Stock Alert:</label>
+          <input type="number" id="tyreMinStock" min="0" value="2">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Stock Modal -->
+  <div id="addStockModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Stock</h3>
+        <button class="close-btn" id="closeAddStockModal">&times;</button>
+      </div>
+      <form id="addStockForm">
+        <input type="hidden" id="addStockTyreId">
+        <div class="form-group">
+          <label>Quantity to Add:</label>
+          <input type="number" id="addStockQty" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>Cost Price (optional):</label>
+          <input type="number" id="addStockCostPrice" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Supplier (optional):</label>
+          <input type="text" id="addStockSupplier">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Stock</button>
+          <button type="button" class="btn btn-secondary" id="cancelAddStockBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

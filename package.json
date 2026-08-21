@@ -1,0 +1,34 @@
+{
+  "name": "brave-tyres-management",
+  "productName": "Brave Tyres Management",
+  "version": "1.0.0",
+  "description": "Offline tyre shop inventory management",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "seed": "node seed-data.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "electron": "^43.4.1",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.bravetyres.management",
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/logo.png"
+    }
+  }
+}

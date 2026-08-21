@@ -1,0 +1,3 @@
+# Icon placeholder
+# Replace this file with a real 256x256 .ico file for the Windows build
+# You can create one from any tyre/wheel image using an online "PNG to ICO" converter
