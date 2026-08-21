@@ -249,6 +249,7 @@ addStockForm.addEventListener('submit', async (e) => {
 // Sell Section
 async function loadSellTyres() {
   const result = await window.api.tyres.getAll();
+  console.log('loadSellTyres - fresh data from API:', result.data);
   if (result.success) {
     const select = document.getElementById('sellTyreSelect');
     select.innerHTML = '<option value="">-- Select a tyre --</option>';
@@ -261,23 +262,31 @@ async function loadSellTyres() {
       select.appendChild(option);
     });
     
+    console.log('Dropdown updated with', select.options.length - 1, 'tyres');
     loadRecentSales();
   }
 }
 
-document.getElementById('sellTyreSelect').addEventListener('change', (e) => {
+document.getElementById('sellTyreSelect').addEventListener('change', async (e) => {
   const selectedOption = e.target.selectedOptions[0];
   if (selectedOption && selectedOption.value) {
-    const tyre = JSON.parse(selectedOption.dataset.tyre);
-    document.getElementById('tyreDetails').style.display = 'block';
-    document.getElementById('detailSize').textContent = tyre.size;
-    document.getElementById('detailPR').textContent = tyre.pr || '-';
-    document.getElementById('detailPattern').textContent = tyre.pattern || '-';
-    document.getElementById('detailStock').textContent = tyre.quantity;
-    document.getElementById('detailPrice').textContent = formatCurrency(tyre.set_price);
-    document.getElementById('sellPrice').value = tyre.set_price;
-    document.getElementById('sellQty').max = tyre.quantity;
-    calculateTotal();
+    // Always fetch fresh data from API when selecting a tyre
+    const tyreId = parseInt(selectedOption.value);
+    const result = await window.api.tyres.getById(tyreId);
+    
+    if (result.success) {
+      const tyre = result.data;
+      console.log('Selected tyre fresh data:', tyre);
+      document.getElementById('tyreDetails').style.display = 'block';
+      document.getElementById('detailSize').textContent = tyre.size;
+      document.getElementById('detailPR').textContent = tyre.pr || '-';
+      document.getElementById('detailPattern').textContent = tyre.pattern || '-';
+      document.getElementById('detailStock').textContent = tyre.quantity;
+      document.getElementById('detailPrice').textContent = formatCurrency(tyre.set_price);
+      document.getElementById('sellPrice').value = tyre.set_price;
+      document.getElementById('sellQty').max = tyre.quantity;
+      calculateTotal();
+    }
   } else {
     document.getElementById('tyreDetails').style.display = 'none';
   }
