@@ -48,8 +48,8 @@ function initDatabase() {
       price_with_duty REAL DEFAULT 0,
       set_price REAL DEFAULT 0,
       min_stock_alert INTEGER DEFAULT 2,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS sales (
@@ -61,7 +61,7 @@ function initDatabase() {
       total_amount REAL NOT NULL,
       customer_name TEXT,
       note TEXT,
-      sold_at TEXT DEFAULT (datetime('now'))
+      sold_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS purchases (
@@ -70,7 +70,7 @@ function initDatabase() {
       qty_added INTEGER NOT NULL,
       cost_price REAL,
       supplier TEXT,
-      purchased_at TEXT DEFAULT (datetime('now'))
+      purchased_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
 

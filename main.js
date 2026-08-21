@@ -81,12 +81,13 @@ ipcMain.handle('tyres:create', (event, tyreData) => {
 ipcMain.handle('tyres:update', (event, id, tyreData) => {
   try {
     const db = getDatabase();
+    const now = new Date().toISOString();
     db.prepare(`
       UPDATE tyres 
       SET size = ?, pr = ?, pattern = ?, brand = ?, origin = ?, quantity = ?, 
-          purchase_price = ?, price_with_duty = ?, set_price = ?, min_stock_alert = ?, updated_at = datetime('now')
+          purchase_price = ?, price_with_duty = ?, set_price = ?, min_stock_alert = ?, updated_at = ?
       WHERE id = ?
-    `).run(tyreData.size, tyreData.pr, tyreData.pattern, tyreData.brand, tyreData.origin, tyreData.quantity, tyreData.purchase_price, tyreData.price_with_duty, tyreData.set_price, tyreData.min_stock_alert, id);
+    `).run(tyreData.size, tyreData.pr, tyreData.pattern, tyreData.brand, tyreData.origin, tyreData.quantity, tyreData.purchase_price, tyreData.price_with_duty, tyreData.set_price, tyreData.min_stock_alert, now, id);
     
     const updatedTyre = db.prepare('SELECT * FROM tyres WHERE id = ?').get(id);
     return { success: true, data: updatedTyre };
@@ -117,13 +118,14 @@ ipcMain.handle('tyres:addStock', (event, id, qtyToAdd, costPrice, supplier) => {
     
     // Update quantity
     const newQty = tyre.quantity + qtyToAdd;
-    db.prepare('UPDATE tyres SET quantity = ?, updated_at = datetime("now") WHERE id = ?').run(newQty, id);
+    const now = new Date().toISOString();
+    db.prepare('UPDATE tyres SET quantity = ?, updated_at = ? WHERE id = ?').run(newQty, now, id);
     
     // Log purchase
     db.prepare(`
-      INSERT INTO purchases (tyre_id, qty_added, cost_price, supplier)
-      VALUES (?, ?, ?, ?)
-    `).run(id, qtyToAdd, costPrice, supplier);
+      INSERT INTO purchases (tyre_id, qty_added, cost_price, supplier, purchased_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(id, qtyToAdd, costPrice, supplier, now);
     
     const updatedTyre = db.prepare('SELECT * FROM tyres WHERE id = ?').get(id);
     return { success: true, data: updatedTyre };
@@ -151,14 +153,15 @@ ipcMain.handle('sales:create', (event, saleData) => {
     const transaction = db.transaction(() => {
       // Deduct from tyres
       const newQty = tyre.quantity - saleData.qty_sold;
-      db.prepare('UPDATE tyres SET quantity = ?, updated_at = datetime("now") WHERE id = ?').run(newQty, saleData.tyre_id);
+      const now = new Date().toISOString();
+      db.prepare('UPDATE tyres SET quantity = ?, updated_at = ? WHERE id = ?').run(newQty, now, saleData.tyre_id);
       
       // Insert sale
       const totalAmount = saleData.qty_sold * saleData.sale_price;
       const result = db.prepare(`
-        INSERT INTO sales (tyre_id, size, qty_sold, sale_price, total_amount, customer_name, note)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(saleData.tyre_id, tyre.size, saleData.qty_sold, saleData.sale_price, totalAmount, saleData.customer_name, saleData.note);
+        INSERT INTO sales (tyre_id, size, qty_sold, sale_price, total_amount, customer_name, note, sold_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(saleData.tyre_id, tyre.size, saleData.qty_sold, saleData.sale_price, totalAmount, saleData.customer_name, saleData.note, now);
       
       return { lastInsertRowid: result.lastInsertRowid, newQty };
     });
