@@ -248,10 +248,12 @@ addStockForm.addEventListener('submit', async (e) => {
 
 // Sell Section
 async function loadSellTyres() {
+  console.log('loadSellTyres called');
   const result = await window.api.tyres.getAll();
   console.log('loadSellTyres - fresh data from API:', result.data);
   if (result.success) {
     const select = document.getElementById('sellTyreSelect');
+    console.log('Current select element:', select);
     select.innerHTML = '<option value="">-- Select a tyre --</option>';
     
     result.data.filter(t => t.quantity > 0).forEach(tyre => {
@@ -263,7 +265,10 @@ async function loadSellTyres() {
     });
     
     console.log('Dropdown updated with', select.options.length - 1, 'tyres');
+    console.log('Sample dropdown option:', select.options[1]?.textContent);
     loadRecentSales();
+  } else {
+    console.error('loadSellTyres failed:', result.error);
   }
 }
 
@@ -318,8 +323,14 @@ document.getElementById('confirmSaleBtn').addEventListener('click', async () => 
     return;
   }
   
-  const selectedOption = document.getElementById('sellTyreSelect').selectedOptions[0];
-  const tyre = JSON.parse(selectedOption.dataset.tyre);
+  // Fetch fresh tyre data from database for accurate stock validation
+  const freshTyreResult = await window.api.tyres.getById(tyreId);
+  if (!freshTyreResult.success) {
+    showToast('Error fetching tyre data', 'error');
+    return;
+  }
+  
+  const tyre = freshTyreResult.data;
   
   if (qty > tyre.quantity) {
     showToast('Not enough stock available', 'error');
@@ -338,11 +349,15 @@ document.getElementById('confirmSaleBtn').addEventListener('click', async () => 
   
   if (result.success) {
     console.log('Sale successful. Updated tyre data:', result.data.tyre);
-    showToast(`Sold ${qty} x ${tyre.size} for ${formatCurrency(qty * price)}. Remaining stock: ${result.data.tyre.quantity}`);
+    const updatedTyre = result.data.tyre;
+    showToast(`Sold ${qty} x ${tyre.size} for ${formatCurrency(qty * price)}. Remaining stock: ${updatedTyre.quantity}`);
     
+    console.log('About to reload sell section...');
     // Reload both sell section and stock table to show updated quantities
     await loadSellTyres();
+    console.log('Sell section reloaded');
     loadStockTable(); // Refresh stock table to show updated quantities
+    console.log('Stock table reloaded');
     
     // Clear form
     document.getElementById('sellTyreSelect').value = '';

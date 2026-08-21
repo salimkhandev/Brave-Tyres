@@ -31,18 +31,18 @@ function createWindow() {
 function setupIPCHandlers() {
   // IPC Handlers
   ipcMain.handle('tyres:getAll', () => {
-  try {
-    const db = getDatabase();
-    const tyres = db.prepare(`
-      SELECT *, (quantity * set_price) as total_value 
-      FROM tyres 
-      ORDER BY created_at DESC
-    `).all();
-    return { success: true, data: tyres };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
+    try {
+      const db = getDatabase();
+      const tyres = db.prepare(`
+        SELECT *, (quantity * set_price) as total_value 
+        FROM tyres 
+        ORDER BY created_at DESC
+      `).all();
+      return { success: true, data: tyres };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 
 ipcMain.handle('tyres:getById', (event, id) => {
   try {
@@ -189,13 +189,13 @@ ipcMain.handle('sales:getAll', (event, filters = {}) => {
     const params = [];
     
     if (filters.startDate) {
-      query += ' AND sold_at >= ?';
+      query += ' AND date(sold_at) >= date(?)';
       params.push(filters.startDate);
     }
     
     if (filters.endDate) {
-      query += ' AND sold_at <= ?';
-      params.push(filters.endDate + ' 23:59:59');
+      query += ' AND date(sold_at) <= date(?)';
+      params.push(filters.endDate);
     }
     
     if (filters.size) {
@@ -224,13 +224,13 @@ ipcMain.handle('sales:getSummary', (event, filters = {}) => {
     const params = [];
     
     if (filters.startDate) {
-      query += ' AND sold_at >= ?';
+      query += ' AND date(sold_at) >= date(?)';
       params.push(filters.startDate);
     }
     
     if (filters.endDate) {
-      query += ' AND sold_at <= ?';
-      params.push(filters.endDate + ' 23:59:59');
+      query += ' AND date(sold_at) <= date(?)';
+      params.push(filters.endDate);
     }
     
     if (filters.size) {
@@ -274,12 +274,12 @@ ipcMain.handle('dashboard:getSummary', () => {
     
     // Get today's sales
     const today = new Date().toISOString().split('T')[0];
-    const todaySales = db.prepare('SELECT COALESCE(SUM(total_amount), 0) as total FROM sales WHERE sold_at >= ?').get(today);
+    const todaySales = db.prepare('SELECT COALESCE(SUM(total_amount), 0) as total FROM sales WHERE date(sold_at) = date(?)').get(today);
     
     // Get this month's sales
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const monthSales = db.prepare('SELECT COALESCE(SUM(total_amount), 0) as total FROM sales WHERE sold_at >= ?').get(firstDay);
+    const monthSales = db.prepare('SELECT COALESCE(SUM(total_amount), 0) as total FROM sales WHERE date(sold_at) >= date(?)').get(firstDay);
     
     // Get low stock items
     const lowStockItems = db.prepare('SELECT * FROM tyres WHERE quantity <= min_stock_alert').all();
@@ -288,7 +288,7 @@ ipcMain.handle('dashboard:getSummary', () => {
     const topSelling = db.prepare(`
       SELECT size, SUM(qty_sold) as total_sold
       FROM sales
-      WHERE sold_at >= ?
+      WHERE date(sold_at) >= date(?)
       GROUP BY size
       ORDER BY total_sold DESC
       LIMIT 5
@@ -474,6 +474,7 @@ ipcMain.handle('backup:getInfo', () => {
 
 ipcMain.handle('backup:create', async () => {
   try {
+    const { getDatabasePath } = require('./db/database');
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
       title: 'Select Backup Location'
@@ -497,6 +498,7 @@ ipcMain.handle('backup:create', async () => {
 
 ipcMain.handle('backup:restore', async () => {
   try {
+    const { getDatabasePath, initDatabase } = require('./db/database');
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile'],
       filters: [{ name: 'SQLite Files', extensions: ['sqlite', 'db'] }],
@@ -529,6 +531,7 @@ ipcMain.handle('backup:restore', async () => {
 
 app.whenReady().then(() => {
   // Initialize database before creating window
+  const { initDatabase, getDatabase, getDatabasePath } = require('./db/database');
   initDatabase();
   console.log('Database initialized at:', getDatabasePath());
   

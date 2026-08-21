@@ -1,39 +1,41 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const os = require('os');
 const { app } = require('electron');
 
 let db;
+let cachedDbPath = null;
 
 function getDatabasePath() {
-  const userDataPath = app.getPath('userData');
-  return path.join(userDataPath, 'brave-tyres.sqlite');
+  // Cache the path to avoid repeated calls
+  if (cachedDbPath) {
+    return cachedDbPath;
+  }
+  
+  // Try to get userData path from app, fallback to home directory
+  try {
+    const userDataPath = app.getPath('userData');
+    cachedDbPath = path.join(userDataPath, 'brave-tyres.sqlite');
+  } catch (e) {
+    // Fallback if app is not ready
+    const userDataPath = path.join(os.homedir(), '.brave-tyres');
+    cachedDbPath = path.join(userDataPath, 'brave-tyres.sqlite');
+  }
+  
+  return cachedDbPath;
 }
 
 function initDatabase() {
   const dbPath = getDatabasePath();
   const fs = require('fs');
   
-  // Check if we need to copy the seeded database
-  const localDbPath = path.join(__dirname, '..', 'brave-tyres.sqlite');
-  console.log('Looking for seeded database at:', localDbPath);
-  console.log('Seeded database exists:', fs.existsSync(localDbPath));
-  console.log('User database exists:', fs.existsSync(dbPath));
-  
-  // Only copy seeded database if user database doesn't exist
-  if (!fs.existsSync(dbPath) && fs.existsSync(localDbPath)) {
-    // Ensure the directory exists
-    const dbDir = path.dirname(dbPath);
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
-    // Copy the seeded database for initial setup
-    fs.copyFileSync(localDbPath, dbPath);
-    console.log('Copied seeded database to:', dbPath);
-  } else if (!fs.existsSync(dbPath)) {
-    console.log('No seeded database found, creating new database');
-  } else {
-    console.log('Using existing user database at:', dbPath);
+  // Ensure the directory exists
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
   }
+  
+  console.log('Using database at:', dbPath);
   
   db = new Database(dbPath);
 
@@ -93,3 +95,4 @@ module.exports = {
   getDatabase,
   getDatabasePath
 };
+  
