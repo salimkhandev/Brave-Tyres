@@ -7,3 +7,5 @@ build/
 .idea/
 *.sqlite
 brave-tyres.sqlite
+seed-data.js
+promots to create.md
