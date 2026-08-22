@@ -1,9 +1,12 @@
-const Database = require('better-sqlite3');
+const DataStore = require('@seald-io/nedb');
 const path = require('path');
 const os = require('os');
-const { app } = require('electron');
+const fs = require('fs');
 
 let db;
+let tyresDb;
+let salesDb;
+let purchasesDb;
 let cachedDbPath = null;
 
 function getDatabasePath() {
@@ -12,74 +15,50 @@ function getDatabasePath() {
     return cachedDbPath;
   }
   
-  // Try to get userData path from app, fallback to home directory
-  try {
-    const userDataPath = app.getPath('userData');
-    cachedDbPath = path.join(userDataPath, 'brave-tyres.sqlite');
-  } catch (e) {
-    // Fallback if app is not ready
-    const userDataPath = path.join(os.homedir(), '.brave-tyres');
-    cachedDbPath = path.join(userDataPath, 'brave-tyres.sqlite');
-  }
+  // Always use home directory to avoid electron loading issues
+  const userDataPath = path.join(os.homedir(), '.brave-tyres');
+  cachedDbPath = userDataPath;
   
   return cachedDbPath;
 }
 
 function initDatabase() {
   const dbPath = getDatabasePath();
-  const fs = require('fs');
   
   // Ensure the directory exists
-  const dbDir = path.dirname(dbPath);
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+  if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbPath, { recursive: true });
   }
   
   console.log('Using database at:', dbPath);
   
-  db = new Database(dbPath);
-
-  // Create tables
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS tyres (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      serial_no TEXT UNIQUE,
-      size TEXT NOT NULL,
-      pr TEXT,
-      pattern TEXT,
-      brand TEXT,
-      origin TEXT,
-      quantity INTEGER NOT NULL DEFAULT 0,
-      purchase_price REAL DEFAULT 0,
-      price_with_duty REAL DEFAULT 0,
-      set_price REAL DEFAULT 0,
-      min_stock_alert INTEGER DEFAULT 2,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS sales (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tyre_id INTEGER REFERENCES tyres(id),
-      size TEXT NOT NULL,
-      qty_sold INTEGER NOT NULL,
-      sale_price REAL NOT NULL,
-      total_amount REAL NOT NULL,
-      customer_name TEXT,
-      note TEXT,
-      sold_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS purchases (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tyre_id INTEGER REFERENCES tyres(id),
-      qty_added INTEGER NOT NULL,
-      cost_price REAL,
-      supplier TEXT,
-      purchased_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-
+  // Initialize NeDB databases
+  tyresDb = new DataStore({ 
+    filename: path.join(dbPath, 'tyres.db'), 
+    autoload: true 
+  });
+  
+  salesDb = new DataStore({ 
+    filename: path.join(dbPath, 'sales.db'), 
+    autoload: true 
+  });
+  
+  purchasesDb = new DataStore({ 
+    filename: path.join(dbPath, 'purchases.db'), 
+    autoload: true 
+  });
+  
+  // Ensure indexes
+  tyresDb.ensureIndex({ fieldName: 'serial_no', unique: true });
+  salesDb.ensureIndex({ fieldName: 'tyre_id' });
+  purchasesDb.ensureIndex({ fieldName: 'tyre_id' });
+  
+  db = {
+    tyres: tyresDb,
+    sales: salesDb,
+    purchases: purchasesDb
+  };
+  
   return db;
 }
 
@@ -95,4 +74,3 @@ module.exports = {
   getDatabase,
   getDatabasePath
 };
-  

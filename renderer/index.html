@@ -9,7 +9,7 @@
 <body>
   <nav class="navbar">
     <div class="nav-brand">
-      <img src="../assets/logo.png" alt="Brave Tyres" class="nav-logo">
+      <img src="assets/logo.png" alt="Brave Tyres" class="nav-logo">
       <span>Brave Tyres Management</span>
     </div>
     <div class="nav-links">
@@ -53,11 +53,11 @@
           <div class="card-value" id="dashLowStock">0</div>
           <div class="card-label">Low Stock Items</div>
         </div>
-      </div>
+        </div>
 
       <div class="dashboard-section">
         <h3>Low Stock Alerts</h3>
-        <div class="table-container">
+        <div class="table-container dashboard-table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -77,7 +77,7 @@
 
       <div class="dashboard-section">
         <h3>Top Selling Sizes (This Month)</h3>
-        <div class="table-container">
+        <div class="table-container dashboard-table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -94,11 +94,12 @@
     </section>
 
     <!-- Stock Section -->
-    <section id="stock" class="section active">
+    <section id="stock" class="section">
       <div class="section-header">
         <h2>Stock Management</h2>
         <div>
           <button class="btn btn-secondary" id="exportStockExcelBtn">Export to Excel</button>
+          <button class="btn btn-secondary" id="addBatchStockBtn">+ Batch Add Stock</button>
           <button class="btn btn-primary" id="addTyreBtn">+ Add New Tyre</button>
         </div>
       </div>
@@ -113,7 +114,7 @@
         <span>Total Stock Value: Rs. 0</span>
       </div>
 
-      <div class="table-container">
+      <div class="table-container stock-table-container">
         <table class="data-table" id="stockTable">
           <thead>
             <tr>
@@ -141,7 +142,7 @@
       </div>
 
       <div id="purchase-history" style="display: none;">
-        <div class="table-container">
+        <div class="table-container purchase-table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -167,68 +168,108 @@
         <h2>Sell Tyres</h2>
       </div>
 
-      <div class="sell-form">
-        <div class="form-group">
-          <label>Select Tyre:</label>
-          <select id="sellTyreSelect">
-            <option value="">-- Select a tyre --</option>
-          </select>
-        </div>
-
-        <div class="tyre-details" id="tyreDetails" style="display: none;">
-          <div class="detail-row">
-            <span><strong>Size:</strong> <span id="detailSize">-</span></span>
-            <span><strong>PR:</strong> <span id="detailPR">-</span></span>
-            <span><strong>Pattern:</strong> <span id="detailPattern">-</span></span>
+      <div class="sell-container">
+        <div class="sell-form-card">
+          <div class="sell-form-header">
+            <h3>New Sale</h3>
           </div>
-          <div class="detail-row">
-            <span><strong>Current Stock:</strong> <span id="detailStock">-</span></span>
-            <span><strong>Set Price:</strong> <span id="detailPrice">-</span></span>
+          
+          <div class="sell-form">
+            <div class="form-group">
+              <label for="sellTyreSelect">Select Tyre <span class="required">*</span></label>
+              <select id="sellTyreSelect" required>
+                <option value="">-- Select a tyre --</option>
+              </select>
+            </div>
+
+            <div class="tyre-details" id="tyreDetails" style="display: none;">
+              <div class="tyre-details-header">
+                <h4>Tyre Details</h4>
+              </div>
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="detail-label">Size:</span>
+                  <span class="detail-value" id="detailSize">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">PR:</span>
+                  <span class="detail-value" id="detailPR">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Pattern:</span>
+                  <span class="detail-value" id="detailPattern">-</span>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-item">
+                  <span class="detail-label">Current Stock:</span>
+                  <span class="detail-value stock-badge" id="detailStock">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Set Price:</span>
+                  <span class="detail-value price-highlight" id="detailPrice">-</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sell-inputs-grid">
+              <div class="form-group">
+                <label for="sellQty">Quantity to Sell <span class="required">*</span></label>
+                <input type="number" id="sellQty" min="1" value="1" required>
+              </div>
+
+              <div class="form-group">
+                <label for="sellPrice">Sale Price per Unit <span class="required">*</span></label>
+                <input type="number" id="sellPrice" min="0" step="0.01" required>
+              </div>
+            </div>
+
+            <div class="total-amount">
+              <div class="total-label">Total Amount:</div>
+              <div class="total-value">Rs. <span id="totalAmount">0</span></div>
+            </div>
+
+            <div class="sell-inputs-grid">
+              <div class="form-group">
+                <label for="sellCustomer">Customer Name</label>
+                <input type="text" id="sellCustomer" placeholder="Enter customer name (optional)">
+              </div>
+
+              <div class="form-group">
+                <label for="sellNote">Note</label>
+                <input type="text" id="sellNote" placeholder="Add a note (optional)">
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" id="confirmSaleBtn">
+              <span class="btn-icon">💰</span>
+              Confirm Sale
+            </button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Quantity to Sell:</label>
-          <input type="number" id="sellQty" min="1" value="1">
+        <div class="recent-sales-card">
+          <div class="recent-sales-header">
+            <h3>Recent Sales</h3>
+          </div>
+          <div class="recent-sales-content">
+            <div class="table-container recent-sales-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="recentSalesBody">
+                  <!-- Recent sales will be populated here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label>Sale Price per Unit:</label>
-          <input type="number" id="sellPrice" min="0" step="0.01">
-        </div>
-
-        <div class="total-amount">
-          <strong>Total Amount: Rs. <span id="totalAmount">0</span></strong>
-        </div>
-
-        <div class="form-group">
-          <label>Customer Name (optional):</label>
-          <input type="text" id="sellCustomer">
-        </div>
-
-        <div class="form-group">
-          <label>Note (optional):</label>
-          <input type="text" id="sellNote">
-        </div>
-
-        <button class="btn btn-primary" id="confirmSaleBtn">Confirm Sale</button>
-      </div>
-
-      <div class="recent-sales">
-        <h3>Recent Sales</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Size</th>
-              <th>Qty</th>
-              <th>Amount</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody id="recentSalesBody">
-            <!-- Recent sales will be populated here -->
-          </tbody>
-        </table>
       </div>
     </section>
 
@@ -255,8 +296,8 @@
           <input type="text" id="filterSize" placeholder="Filter by size...">
         </div>
         <button class="btn btn-secondary" id="applyFilterBtn">Apply Filter</button>
-        <button class="btn btn-secondary" id="todayFilterBtn">Today</button>
-        <button class="btn btn-secondary" id="monthFilterBtn">This Month</button>
+        <button class="btn btn-filter" id="todayFilterBtn">Today</button>
+        <button class="btn btn-filter" id="monthFilterBtn">This Month</button>
       </div>
 
       <div class="summary-bar" id="salesSummary">
@@ -265,7 +306,7 @@
         <span>Transactions: 0</span>
       </div>
 
-      <div class="table-container">
+      <div class="table-container sales-table-container">
         <table class="data-table">
           <thead>
             <tr>
@@ -400,6 +441,48 @@
           <button type="button" class="btn btn-secondary" id="cancelAddStockBtn">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Batch Stock Entry Modal -->
+  <div id="batchStockModal" class="modal">
+    <div class="modal-content batch-modal-content">
+      <div class="modal-header">
+        <h3>Batch Add Stock</h3>
+        <button class="close-btn" id="closeBatchStockModal">&times;</button>
+      </div>
+      <div class="batch-stock-container">
+        <div class="batch-instructions">
+          <p>Enter tyre details in the grid below. Only rows with filled data will be saved.</p>
+          <div class="batch-actions">
+            <button class="btn btn-secondary" id="addBatchRowBtn">+ Add Row</button>
+            <button class="btn btn-primary" id="saveBatchStockBtn">Save All Filled Rows</button>
+            <button class="btn btn-secondary" id="clearBatchBtn">Clear All</button>
+          </div>
+        </div>
+        <div class="batch-grid-container">
+          <table class="batch-table" id="batchStockTable">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>PR</th>
+                <th>Pattern</th>
+                <th>Brand</th>
+                <th>Origin</th>
+                <th>Qty</th>
+                <th>Purchase Price</th>
+                <th>Price w/ Duty</th>
+                <th>Set Price</th>
+                <th>Min Alert</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="batchStockBody">
+              <!-- Batch rows will be generated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 

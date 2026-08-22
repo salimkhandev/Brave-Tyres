@@ -6,29 +6,65 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win",
-    "seed": "node seed-data.js"
+    "build": "node --max-old-space-size=8192 ./node_modules/electron-builder/out/cli/cli.js --win",
+    "build:nsis": "electron-builder --win --publish never",
+    "build:portable": "electron-builder --win portable --publish never",
+    "seed": "node seed-data.js",
+    "install-deps": "npm install"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "tyre",
+    "inventory",
+    "management",
+    "electron",
+    "offline"
+  ],
+  "author": "Brave Tyres",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
-    "electron": "^43.4.1",
+    "@seald-io/nedb": "^4.0.4",
     "exceljs": "^4.4.0"
   },
   "devDependencies": {
+    "electron": "^43.4.1",
     "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "com.bravetyres.management",
+    "productName": "Brave Tyres Management",
+    "executableName": "BraveTyresManagement",
+    "compression": "store",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "db/**/*",
+      "renderer/**/*"
+    ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
-        "nsis",
-        "portable"
-      ],
-      "icon": "assets/logo.png"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Brave Tyres Management",
+      "uninstallDisplayName": "Brave Tyres Management",
+      "deleteAppDataOnUninstall": false
     }
   }
 }

@@ -1,208 +1,214 @@
 # Brave Tyres Management
 
-A comprehensive desktop application for managing tyre inventory, sales, and business operations. Built with Electron, this application provides a user-friendly interface for tracking stock, managing sales, and generating reports.
+An offline tyre shop inventory management system built with Electron, SQLite, and JavaScript.
 
 ## Features
 
-### Dashboard
-- Real-time overview of business metrics
-- Total distinct sizes and units in stock
-- Total stock value calculation
-- Today's and monthly sales tracking
-- Low stock alerts with detailed item lists
-- Top-selling sizes analysis
+- **Dashboard**: Real-time overview of stock, sales, and low stock alerts
+- **Stock Management**: Add, edit, delete tyres, and manage inventory
+- **Sales Management**: Process sales, track customer information, and view sales history
+- **Purchase History**: Track stock additions and supplier information
+- **Backup & Restore**: Backup database and restore from backups
+- **Export to Excel**: Export stock and sales data to Excel files
+- **Low Stock Alerts**: Get notified when stock falls below minimum levels
+- **Offline Mode**: Works completely offline without internet connection
 
-### Stock Management
-- Add, edit, and delete tyre entries
-- Automatic serial number generation (TY-XXXX format)
-- Track tyre details: Size, PR, Pattern, Brand, Origin
-- Quantity management with purchase price tracking
-- Set pricing with duty calculation
-- Minimum stock alert configuration
-- Stock purchase history tracking
-- Export stock data to Excel format
+## System Requirements
 
-### Sales Management
-- Easy tyre selection from available stock
-- Automatic stock deduction on sales
-- Customer name and note tracking
-- Recent sales display
-- Real-time total amount calculation
-- Sales history with filtering options
-- Date range filtering (Today, This Month, Custom)
-- Size-based filtering
-- Export sales data to Excel format
-
-### Backup & Restore
-- Database backup creation
-- Restore from backup files
-- Database location and size information
-- Last modified timestamp tracking
-
-## Technology Stack
-
-- **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Node.js with Electron
-- **Database**: SQLite
-- **Excel Export**: ExcelJS library
-- **Build Tool**: Electron
+- Windows 10 or later
+- Node.js 16.x or higher
+- npm 7.x or higher
 
 ## Installation
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or pnpm package manager
+### Option 1: Automated Installation (Windows)
 
-### Setup Instructions
+1. Double-click `install.bat` to run the automated installation script
+2. Follow the on-screen instructions
+3. Wait for dependencies to be installed
 
-1. Clone the repository:
-```bash
-git clone https://github.com/salimkhandev/Brave-Tyres.git
-cd Brave-Tyres
-```
+### Option 2: Manual Installation
 
-2. Install dependencies:
-```bash
-npm install
-# or
-pnpm install
-```
+1. Ensure Node.js is installed on your system
+   - Download from: https://nodejs.org/
+   - Run the installer and follow the prompts
 
-3. Run the application:
+2. Open Command Prompt or PowerShell in the project directory
+
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Running the Application
+
+### Development Mode
+
+Run the application in development mode:
 ```bash
 npm start
-# or
-pnpm start
 ```
+
+### Building for Production
+
+#### Build Both NSIS Installer and Portable Version
+```bash
+npm run build
+```
+
+#### Build NSIS Installer Only
+```bash
+npm run build:nsis
+```
+
+#### Build Portable Version Only
+```bash
+npm run build:portable
+```
+
+The built files will be in the `dist` directory:
+- `Brave Tyres Management-1.0.0-x64.exe` - NSIS installer
+- `Brave Tyres Management-Portable-1.0.0.exe` - Portable executable
+
+## Installation from Built Files
+
+### NSIS Installer
+
+1. Run `Brave Tyres Management-1.0.0-x64.exe`
+2. Follow the installation wizard
+3. Choose installation directory (default: `C:\Program Files\Brave Tyres Management`)
+4. Select desktop shortcut options
+5. Complete the installation
+6. Launch from desktop shortcut or Start Menu
+
+### Portable Version
+
+1. Download `Brave Tyres Management-Portable-1.0.0.exe`
+2. Place it in any directory
+3. Run the executable directly
+4. No installation required
 
 ## Usage
 
-### First Launch
-The application will automatically create a SQLite database file on first launch.
+### First Run
 
-### Adding Tyres
-1. Navigate to the Stock section
-2. Click "+ Add New Tyre" button
-3. Fill in the tyre details (Size, Pattern, Brand, etc.)
-4. Set pricing and quantity
-5. Click "Save" to add to inventory
+1. Launch the application
+2. The database will be automatically created in:
+   - Windows: `%APPDATA%/brave-tyres-management/tyres.db`
+3. Add your initial stock using the "Add New Tyre" button
+4. Set minimum stock alerts for each tyre type
 
-### Making Sales
-1. Navigate to the Sell section
+### Adding Stock
+
+1. Navigate to "Stock" section
+2. Click "+ Add New Tyre"
+3. Fill in tyre details:
+   - Size (e.g., "205/55R16")
+   - PR (Ply Rating)
+   - Pattern
+   - Brand
+   - Origin
+   - Quantity
+   - Purchase Price
+   - Price with Duty
+   - Set Price (selling price)
+   - Min Stock Alert (optional, default: 2)
+4. Click "Save"
+
+### Processing Sales
+
+1. Navigate to "Sell" section
 2. Select a tyre from the dropdown
-3. Enter quantity and sale price
-4. Optionally add customer name and notes
-5. Click "Confirm Sale" to complete transaction
+3. View tyre details automatically
+4. Enter quantity to sell
+5. Enter sale price per unit
+6. (Optional) Enter customer name and note
+7. Click "Confirm Sale"
 
-### Managing Stock
-- **Add Stock**: Click "Add Stock" button on any tyre entry to add inventory
-- **Edit Tyre**: Click "Edit" button to modify tyre details
-- **Delete Tyre**: Click "Delete" button to remove from inventory
+### Viewing Sales History
 
-### Exporting Data
-- **Stock Export**: Click "Export to Excel" in Stock section
-- **Sales Export**: Click "Export to Excel" in Sales History section
-- Data is exported as formatted Excel files with proper styling
+1. Navigate to "Sales History" section
+2. Use filters to narrow down results:
+   - Date range (From/To)
+   - Size filter
+   - Quick filters: "Today", "This Month"
+3. Export to Excel using the "Export to Excel" button
 
 ### Backup & Restore
-- Navigate to Backup section
-- Click "Backup Now" to create a database backup
-- Click "Restore from Backup" to restore from a previous backup
 
-## Database Schema
+1. Navigate to "Backup" section
+2. View database information (location, size, last modified)
+3. Click "Backup Now" to create a backup
+4. Select backup location
+5. To restore: Click "Restore from Backup" and select backup file
 
-### Tyres Table
-- `id`: Primary key
-- `serial_no`: Auto-generated serial number
-- `size`: Tyre size
-- `pr`: PR rating
-- `pattern`: Tyre pattern
-- `brand`: Brand name
-- `origin`: Country of origin
-- `quantity`: Current stock quantity
-- `purchase_price`: Cost price
-- `price_with_duty`: Price including duty
-- `set_price`: Selling price
-- `min_stock_alert`: Minimum stock threshold
-- `created_at`: Creation timestamp
-- `updated_at`: Last update timestamp
+## Database Structure
 
-### Sales Table
-- `id`: Primary key
-- `tyre_id`: Reference to tyre
-- `size`: Tyre size
-- `qty_sold`: Quantity sold
-- `sale_price`: Price per unit
-- `total_amount`: Total sale amount
-- `customer_name`: Customer name (optional)
-- `note`: Additional notes (optional)
-- `sold_at`: Sale timestamp
+The application uses SQLite with the following tables:
 
-### Purchases Table
-- `id`: Primary key
-- `tyre_id`: Reference to tyre
-- `qty_added`: Quantity added
-- `cost_price`: Cost price
-- `supplier`: Supplier name (optional)
-- `purchased_at`: Purchase timestamp
+### tyres
+- id, serial_no, size, pr, pattern, brand, origin
+- quantity, purchase_price, price_with_duty, set_price
+- min_stock_alert, created_at, updated_at
 
-## File Structure
+### sales
+- id, tyre_id, size, qty_sold, sale_price, total_amount
+- customer_name, note, sold_at
 
-```
-Brave-Tyres/
-├── assets/              # Application assets (logos, icons)
-├── db/                  # Database management
-│   ├── database.js      # Database initialization and configuration
-│   └── seedDatabase.js  # Database seeding utilities
-├── renderer/            # Frontend files
-│   ├── index.html      # Main HTML interface
-│   ├── renderer.js     # Frontend JavaScript logic
-│   └── styles.css      # Application styling
-├── main.js             # Electron main process
-├── preload.js          # Electron preload script
-├── package.json        # Project dependencies
-└── README.md           # This file
-```
-
-## Development
-
-### Project Scripts
-- `npm start`: Start the application in development mode
-- `npm run build`: Build the application for production
-
-### Adding New Features
-1. Add IPC handlers in `main.js` for backend logic
-2. Expose API methods in `preload.js` for frontend access
-3. Implement UI logic in `renderer/renderer.js`
-4. Update HTML structure in `renderer/index.html`
+### purchases
+- id, tyre_id, qty_added, cost_price, supplier
+- purchased_at
 
 ## Troubleshooting
 
-### Database Issues
-- Database file location is displayed in the Backup section
-- Use backup/restore functionality to recover data
-- Database file: `brave-tyres.sqlite`
+### Application won't start
 
-### Export Issues
-- Ensure write permissions in the selected export directory
-- Excel exports require sufficient disk space
-- Check that ExcelJS library is properly installed
+1. Check if Node.js is properly installed: `node --version`
+2. Reinstall dependencies: `npm install`
+3. Check for antivirus blocking the application
 
-### Performance
-- Application works best with < 10,000 tyre entries
-- Regular backups recommended for large inventories
-- Consider archiving old sales data for better performance
+### Database errors
+
+1. Check database file permissions
+2. Ensure write access to `%APPDATA%/brave-tyres-management/`
+3. Use Backup & Restore to recover from a backup
+
+### Build errors
+
+1. Clear cache: `npm cache clean --force`
+2. Reinstall dependencies: `rm -rf node_modules && npm install`
+3. Ensure electron-builder is installed: `npm install --save-dev electron-builder`
+
+## Development
+
+### Project Structure
+
+```
+brave-tyres-management/
+├── assets/              # Icons and images
+├── db/                  # Database configuration
+├── renderer/            # Frontend files
+│   ├── index.html      # Main HTML
+│   ├── renderer.js     # Frontend logic
+│   └── styles.css      # Styling
+├── main.js             # Electron main process
+├── preload.js          # Electron preload script
+├── package.json        # Project configuration
+└── install.bat         # Installation script
+```
+
+### Adding New Features
+
+1. Add IPC handlers in `main.js`
+2. Expose API in `preload.js`
+3. Call API from `renderer.js`
+4. Update UI in `index.html`
+5. Add styles in `styles.css`
 
 ## License
 
-This project is proprietary software. All rights reserved.
+ISC
 
 ## Support
 
-For issues, questions, or support requests, please contact the development team.
-
-## Version History
-
-- **v1.0.0**: Initial release with core inventory management features
-- **v1.1.0**: Added Excel export functionality (CSV exports removed)
-- Future updates will include additional reporting and analytics features
+For issues and questions, please contact the development team.
